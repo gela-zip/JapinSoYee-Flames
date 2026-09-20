@@ -10,7 +10,7 @@ public class GameLogic {
         new Planet("LHS 1140 b", "SAFE"),
         new Planet("Alpha Wolf", "UNSAFE"),
         new Planet("Mercury", "UNSAFE"),
-        new Planet("TRAPPIST-1 e", "SAFE"),
+        new Planet("ERIS", "SAFE"),
         new Planet("Slytherin", "UNSAFE")
     };
     

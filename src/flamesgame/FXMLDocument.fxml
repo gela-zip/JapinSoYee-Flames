@@ -134,7 +134,23 @@
             </HBox>
             <Label styleClass="pink-sub-label" text="WHAT IS YOUR EXPECTED RESULT?" />
             <ComboBox fx:id="expectationDropdown" prefWidth="240.0" styleClass="custom-combo-box" />
-            <Button mnemonicParsing="false" onAction="#handleFlamesSubmit" prefHeight="38.0" prefWidth="200.0" styleClass="calculate-button" text="CALCULATE" />
+
+<Label fx:id="inputErrorLabel"
+       text=""
+       visible="false"
+       managed="false"
+       wrapText="true"
+       maxWidth="400.0"
+       alignment="CENTER"
+       styleClass="input-error-label" />
+
+<Button mnemonicParsing="false"
+        onAction="#handleFlamesSubmit"
+        prefHeight="38.0"
+        prefWidth="200.0"
+        styleClass="calculate-button"
+        text="CALCULATE" />
+         
          </children>
       </VBox>
 
@@ -146,6 +162,7 @@
             <Label fx:id="flamesResultLabel" styleClass="pink-info-label" text="FLAMES Result: Lovers" />
             <Label fx:id="expectationResultLabel" styleClass="blue-info-label" text="Expected Outcome: Lovers" />
             <Label fx:id="scoreLabel" styleClass="gold-info-label" text="Total Points: 100 / 100" />
+         <Button text="CONTINUE"        onAction="#handleContinueToPlanet" />
          </children>
       </VBox>
    </children>

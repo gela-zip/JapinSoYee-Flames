@@ -159,3 +159,15 @@
     -fx-text-fill: #FBBF24;
     -fx-font-size: 16px;
 }
+
+.input-error-label {
+    -fx-text-fill: #ff6b81;
+    -fx-background-color: rgba(255, 107, 129, 0.12);
+    -fx-border-color: #ff6b81;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 7px 14px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}

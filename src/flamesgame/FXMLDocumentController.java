@@ -32,7 +32,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML private ComboBox<String> expectationDropdown;
     @FXML private ImageView p1PortraitView, p2PortraitView;
 
-    @FXML private Label resultStatusLabel, planetNameLabel, flamesResultLabel, expectationResultLabel, scoreLabel;
+    @FXML private Label resultStatusLabel, planetNameLabel, flamesResultLabel, expectationResultLabel, scoreLabel, inputErrorLabel;
     @FXML private ImageView charLeftView, charCenterView, charRightView;
     @FXML private Label speakerLabel, dialogueTextLabel;
 
@@ -271,9 +271,24 @@ public class FXMLDocumentController implements Initializable {
     }
 
     @FXML
-    private void handleFlamesSubmit(ActionEvent event) { //salamat sa pag trim daan, love u geliq
-        String name1 = (player1Input != null && !player1Input.getText().trim().isEmpty()) ? player1Input.getText() : "Player 1";
-        String name2 = (player2Input != null && !player2Input.getText().trim().isEmpty()) ? player2Input.getText() : "Player 2";
+    private void handleFlamesSubmit(ActionEvent event) {
+        String name1 = player1Input.getText().trim();
+        String name2 = player2Input.getText().trim();
+
+        // Hide previous error message
+        hideInputError();
+
+        // Check if either name is empty
+        if (name1.isEmpty() || name2.isEmpty()) {
+            showInputError("Please enter both names.");
+            return;
+        }
+
+        // Check if names contain anything other than letters and spaces
+        if (!name1.matches("[a-zA-Z ]+") || !name2.matches("[a-zA-Z ]+")) {
+            showInputError("Names can only contain letters and spaces.");
+            return;
+        }
 
         if (expectationDropdown != null && expectationDropdown.getValue() != null) {
             this.userExpectation = expectationDropdown.getValue();
@@ -281,7 +296,9 @@ public class FXMLDocumentController implements Initializable {
 
         executeGameLogic(name1, name2, this.userExpectation);
 
-        if (flamesInputBox != null) flamesInputBox.setVisible(false);
+        if (flamesInputBox != null) {
+            flamesInputBox.setVisible(false);
+        }
 
         playBGM("SPACESHIP_DROP.wav");
         resumeLanceEncounterVideo();
@@ -309,11 +326,22 @@ public class FXMLDocumentController implements Initializable {
         playBGM("SPACESHIP_DROP.wav");
         setBackdrop("SPACESHIP BACKGROUND.png");
 
-        this.storyDialogue = new String[][]{
-            {"Lance", "The result will also determine what planets we are gonna be landing on, and the planet's conditions are also unpredictable."},
-            {"Player 1", "Whaaaat?"},
-            {"Player 2", "Heyyy!"}
-        };
+        if (gameLogic.isRandomResult()) {
+            this.storyDialogue = new String[][]{
+                {"Lance", "Wooow, you guys really don't have any similar characters in your names, huh?"},
+                {"Player 1", "What are you talking about?"},
+                {"Lance", "Oh well! You guys are " + flamesMeaning + " from now on."},
+                {"Lance", "Now then, let's spin the wheel for which random planet we'll land on!"},
+                {"Player 2", "HEY-!"}
+            };
+        } else {
+            this.storyDialogue = new String[][]{
+                {"Lance", "Oh, so you guys are " + flamesMeaning + ", huh?"},
+                {"Player 1", "Whaaaat?"},
+                {"Lance", "Now then, let's spin the wheel for which random planet we'll land on!"},
+                {"Player 2", "HEY-!"}
+            };
+        }
 
         showDialogueBox();
     }
@@ -328,6 +356,7 @@ public class FXMLDocumentController implements Initializable {
 
         showFinalPlanetOutcome();
     }
+    
 //game logic plug
     private void executeGameLogic(String name1, String name2, String expectation) {
         gameLogic.resetGame(); //init
@@ -349,6 +378,11 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleContinueToPlanet(ActionEvent event) {
+        startPlanetScene();
+    }
+    
     private void showFinalPlanetOutcome() {
         currentScene = 6;
         hideAllPanels();
@@ -372,6 +406,111 @@ public class FXMLDocumentController implements Initializable {
         if (endingResultBox != null) {
             bringToTopLevelFront(endingResultBox);
         }
+    }
+    
+    private void startPlanetScene() {
+        currentScene = 7;
+        
+        if (endingResultBox != null) {
+            endingResultBox.setVisible(false);
+        }
+
+        if (planetName.equals("Fomalhaut")) {
+            startFomalhautScene();
+
+        } else if (planetName.equals("LHS 1140 b")) {
+            startLHS1140Scene();
+
+        } else if (planetName.equals("Alpha Wolf")) {
+            startAlphaWolfScene();
+
+        } else if (planetName.equals("Mercury")) {
+            startMercuryScene();
+
+        } else if (planetName.equals("ERIS")) {
+            startErisScene();
+
+        } else if (planetName.equals("Slytherin")) {
+            startSlytherinScene();
+        }
+    }
+    //planet branches
+    private void startFomalhautScene() {
+        currentScene = 7;
+
+        setBackdrop("FOMALHAUT.png");
+
+        this.storyDialogue = new String[][]{
+            {"Player 1", "text?"},
+            {"Player 2", "text-!"}
+        };
+
+        showDialogueBox();
+    }
+    
+    private void startLHS1140Scene() {
+        currentScene = 7;
+
+        setBackdrop("LHS1140.png");
+
+        this.storyDialogue = new String[][]{
+            {"Player 1", "Wow! A coincidence we landed on a planet that is similar to our planet Earth!"},
+            {"Player 2", "Exactly! We can rebuild our lives here"}
+        };
+
+        showDialogueBox();
+    }
+    
+    private void startAlphaWolfScene() {
+        currentScene = 7;
+
+        setBackdrop("ALPHAWOLF.png");
+
+        this.storyDialogue = new String[][]{
+            {"Player 1", "Oh my gosh! Its so cold in here *brrrr*"},
+            {"Player 2", "*suffocates*"}
+        };
+
+        showDialogueBox();
+    }
+    
+    private void startMercuryScene() {
+        currentScene = 7;
+
+        setBackdrop("MERCURY.png");
+
+        this.storyDialogue = new String[][]{
+            {"Player 1", "Did we just land on the planet near our star?"},
+            {"Player 2", "Oh no, I can see our star bigger than ever.. I can already feel the heat."}
+        };
+
+        showDialogueBox();
+    }
+    
+    private void startErisScene() {
+        currentScene = 7;
+
+        setBackdrop("ERIS.png");
+
+        this.storyDialogue = new String[][]{
+            {"Player 1", "Wow! A coincidence we landed on a planet that is similar to our planet Earth!"},
+            {"Player 2", "Exactly! We can rebuild our lives here"}
+        };
+
+        showDialogueBox();
+    }
+    
+    private void startSlytherinScene() {
+        currentScene = 7;
+
+        setBackdrop("SLYTHERIN.png");
+
+        this.storyDialogue = new String[][]{
+            {"Player 1", "THIS PLANET IS FULL OF STORMS!"},
+            {"Player 2", "OUR SPACESHIP IS BEING CARRIED AWAY!! *screams*"}
+        };
+
+        showDialogueBox();
     }
 
     // --- Dialogue Handler ---
@@ -696,4 +835,21 @@ public class FXMLDocumentController implements Initializable {
         clearImageView(charCenterView);
         clearImageView(charRightView);
     }
+    
+    //helpers sa error
+private void showInputError(String message) {
+    inputErrorLabel.setText(message);
+    inputErrorLabel.setVisible(true);
+    inputErrorLabel.setManaged(true);
 }
+    
+private void hideInputError() {
+    inputErrorLabel.setText("");
+    inputErrorLabel.setVisible(false);
+    inputErrorLabel.setManaged(false);
+}
+    
+    
+    
+}
+
