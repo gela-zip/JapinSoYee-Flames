@@ -1,0 +1,13 @@
+# NetBeans private files
+/nbproject/private/
+
+# Build output
+/build/
+/dist/
+
+# Compiled Java files
+*.class
+
+# OS files
+.DS_Store
+Thumbs.db

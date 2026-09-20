@@ -1,0 +1,161 @@
+/* Root Container */
+.root-pane {
+    -fx-background-color: #000000;
+}
+
+/* Video Control Buttons */
+.video-control-button {
+    -fx-background-color: rgba(0, 0, 0, 0.6);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+/* Primary Start Button */
+.start-button {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+
+/* Dialogue Overlay */
+.dialogue-box {
+    -fx-background-color: linear-gradient(to bottom, #102A45, #081628);
+    -fx-border-color: #38BDF8;
+    -fx-border-width: 2px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+}
+
+.speaker-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+}
+
+.dialogue-text {
+    -fx-text-fill: #E2E8F0;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.dialogue-next-button {
+    -fx-background-color: linear-gradient(to bottom, #38BDF8, #0284C7);
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+    -fx-padding: 5 12 5 12;
+}
+
+/* Gender Selection Overlay */
+.selection-heading {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 5, 0, 0, 2);
+}
+
+.pairing-card {
+    -fx-background-color: rgba(20, 30, 48, 0.85);
+    -fx-padding: 20 18;
+    -fx-background-radius: 16;
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-radius: 16;
+    -fx-border-width: 1.5;
+}
+
+.gradient-button {
+    -fx-background-color: linear-gradient(to right, #FF512F, #DD2476);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+}
+
+/* FLAMES Input Overlay */
+.flames-input-box {
+    -fx-background-color: rgba(15, 23, 42, 0.95);
+    -fx-padding: 20 30;
+    -fx-border-color: #EC4899;
+    -fx-border-width: 2px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+}
+
+.pink-header-label {
+    -fx-text-fill: #EC4899;
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+}
+
+.pink-sub-label {
+    -fx-text-fill: #F472B6;
+    -fx-font-weight: bold;
+}
+
+.player-label {
+    -fx-text-fill: #38BDF8;
+    -fx-font-weight: bold;
+}
+
+.custom-text-field {
+    -fx-font-size: 13px;
+    -fx-background-radius: 8px;
+}
+
+.custom-combo-box {
+    -fx-font-size: 13px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+}
+
+.calculate-button {
+    -fx-background-color: #EC4899;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
+    -fx-cursor: hand;
+    -fx-background-radius: 10px;
+}
+
+/* Final Outcome Overlay */
+.outcome-box {
+    -fx-background-color: rgba(15, 23, 42, 0.95);
+    -fx-padding: 25;
+    -fx-border-color: #4ADE80;
+    -fx-border-width: 2px;
+    -fx-background-radius: 20px;
+    -fx-border-radius: 20px;
+}
+
+.win-label {
+    -fx-text-fill: #4ADE80;
+    -fx-font-weight: bold;
+    -fx-font-size: 26px;
+}
+
+.white-info-label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.pink-info-label {
+    -fx-text-fill: #F472B6;
+    -fx-font-size: 16px;
+}
+
+.blue-info-label {
+    -fx-text-fill: #38BDF8;
+    -fx-font-size: 15px;
+}
+
+.gold-info-label {
+    -fx-text-fill: #FBBF24;
+    -fx-font-size: 16px;
+}
