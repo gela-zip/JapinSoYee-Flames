@@ -17,7 +17,7 @@ public class FlamesGame extends Application {
         stage.setTitle("FLAMES Game");
         stage.setScene(scene);
         stage.setResizable(false); // Prevents window resizing from adding black bars
-        stage.sizeToScene();       // Clamps window bounds to exact 800x600 resolution
+        stage.sizeToScene(); // Clamps window bounds to exact 800x600 resolution
         stage.show();
     }
 
