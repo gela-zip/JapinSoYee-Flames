@@ -32,7 +32,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML private ComboBox<String> expectationDropdown;
     @FXML private ImageView p1PortraitView, p2PortraitView;
 
-    @FXML private Label resultStatusLabel, planetNameLabel, flamesResultLabel, expectationResultLabel, scoreLabel, inputErrorLabel;
+    @FXML private Label planetNameLabel, flamesResultLabel, expectationResultLabel, scoreLabel, inputErrorLabel;
     @FXML private ImageView charLeftView, charCenterView, charRightView;
     @FXML private Label speakerLabel, dialogueTextLabel;
 
@@ -65,6 +65,9 @@ public class FXMLDocumentController implements Initializable {
 
     private String[][] storyDialogue;
     private GameLogic gameLogic = new GameLogic();
+    
+    @FXML private VBox winLoseBannerBox;
+@FXML private ImageView winLoseBannerView;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -379,35 +382,56 @@ public class FXMLDocumentController implements Initializable {
     }
 
     @FXML
-    private void handleContinueToPlanet(ActionEvent event) {
-        startPlanetScene();
-    }
+private void handleContinueToPlanet(ActionEvent event) {
+    startPlanetScene(); // Advances scene state correctly to Scene 7
+}
     
-    private void showFinalPlanetOutcome() {
-        currentScene = 6;
-        hideAllPanels();
-        stopVideo();
+private void showFinalPlanetOutcome() {
+    currentScene = 6;
+    hideAllPanels(); // Clears previous state
 
-        boolean matchedExpectation = this.flamesMeaning.equalsIgnoreCase(this.userExpectation);
-        boolean isWin = "Win".equalsIgnoreCase(this.gameState);
-
-        if (resultStatusLabel != null) {
-            resultStatusLabel.setText(isWin ? "YOU WIN!" : "YOU LOSE!");
-            resultStatusLabel.setStyle(isWin 
-                ? "-fx-text-fill: #4ADE80; -fx-font-weight: bold; -fx-font-size: 26px;"
-                : "-fx-text-fill: #F87171; -fx-font-weight: bold; -fx-font-size: 26px;");
-        }
-
-        if (planetNameLabel != null) planetNameLabel.setText("Landed on: " + planetName);
-        if (flamesResultLabel != null) flamesResultLabel.setText("FLAMES Result: " + flamesMeaning);
-        if (expectationResultLabel != null) expectationResultLabel.setText("Expected: " + userExpectation + (matchedExpectation ? " ✓" : " ✗"));
-        if (scoreLabel != null) scoreLabel.setText("Total Points: " + points + " / 100");
-
-        if (endingResultBox != null) {
-            bringToTopLevelFront(endingResultBox);
-        }
+    // 1. Resolve planet image asset path
+    String planetImageAsset = "";
+    if ("Fomalhaut".equalsIgnoreCase(planetName)) {
+        planetImageAsset = "PLANET_FOMALHAUT.png";
+    } else if ("LHS 1140 b".equalsIgnoreCase(planetName)) {
+        planetImageAsset = "PLANET_LHS1140.png";
+    } else if ("Alpha Wolf".equalsIgnoreCase(planetName)) {
+        planetImageAsset = "PLANET_ALPHAWOLF.png";
+    } else if ("Mercury".equalsIgnoreCase(planetName)) {
+        planetImageAsset = "PLANET_MERCURY.png";
+    } else if ("ERIS".equalsIgnoreCase(planetName)) {
+        planetImageAsset = "PLANET_ERIS.png";
+    } else if ("Slytherin".equalsIgnoreCase(planetName)) {
+        planetImageAsset = "PLANET_SLYTHERIN.png";
     }
-    
+
+    if (charLeftView != null) charLeftView.setVisible(false);
+    if (charCenterView != null) charCenterView.setVisible(false);
+
+    // 2. Load and set planet image on charRightView BEFORE playing video
+    if (!planetImageAsset.isEmpty() && charRightView != null) {
+        loadImage(charRightView, planetImageAsset);
+        charRightView.setVisible(true);
+        charRightView.setOpacity(1.0);
+    }
+
+    // 3. Play travel video, maintaining correct z-order layer
+    playVideo("spaceship_travel.mp4", false, () -> {
+        Platform.runLater(() -> {
+            if (charRightView != null) {
+                clearImageView(charRightView);
+                charRightView.setVisible(false);
+            }
+            startPlanetScene();
+        });
+    });
+
+    // 4. Force charRightView over top of the mediaView layer explicitly
+    if (charRightView != null) {
+        bringToTopLevelFront(charRightView);
+    }
+}    
     private void startPlanetScene() {
         currentScene = 7;
         
@@ -512,6 +536,114 @@ public class FXMLDocumentController implements Initializable {
 
         showDialogueBox();
     }
+    
+private void startFinalResultsScene() {
+    currentScene = 8;
+    hideAllPanels();
+    stopAudio();
+
+    setBackdrop("space.png");
+
+    if (charLeftView != null) charLeftView.setVisible(false);
+    if (charCenterView != null) charCenterView.setVisible(false);
+    if (charRightView != null) charRightView.setVisible(false);
+
+    boolean matchedExpectation = this.flamesMeaning != null && 
+                                 this.flamesMeaning.equalsIgnoreCase(this.userExpectation);
+    boolean isWin = "Win".equalsIgnoreCase(this.gameState);
+
+    if (isWin) {
+        playBGM("YOU_WIN.wav");
+    } else {
+        playBGM("YOU_LOSE.wav");
+    }
+
+    if (planetNameLabel != null) {
+        planetNameLabel.setText("Landed on: " + (planetName != null ? planetName : "Unknown"));
+    }
+    
+    if (flamesResultLabel != null) {
+        flamesResultLabel.setText("FLAMES Result: " + (flamesMeaning != null ? flamesMeaning : "None"));
+    }
+    
+    if (expectationResultLabel != null) {
+        expectationResultLabel.setText("Expected: " + (userExpectation != null ? userExpectation : "None") 
+            + (matchedExpectation ? " ✓" : " ✗"));
+    }
+    
+    if (scoreLabel != null) {
+        scoreLabel.setText("Total Points: " + points + " / 100");
+    }
+
+    // 1. Show the stats box in lower half
+    if (endingResultBox != null) {
+        endingResultBox.setVisible(true);
+        bringToTopLevelFront(endingResultBox);
+    }
+
+    // 2. Load image and display upper half banner
+    String bannerImageAsset = isWin ? "You_Win.png" : "You_Lose.png";
+    
+    if (winLoseBannerView != null) {
+        loadImage(winLoseBannerView, bannerImageAsset);
+        winLoseBannerView.setVisible(true);
+    }
+
+    if (winLoseBannerBox != null) {
+        winLoseBannerBox.setVisible(true);
+        winLoseBannerBox.setManaged(true);
+        winLoseBannerBox.toFront();
+        bringToTopLevelFront(winLoseBannerBox);
+    }
+}
+
+@FXML
+private void onRetryButtonClicked() {
+    stopAudio();
+    hideAllPanels();
+
+    // Reset game state variables
+    this.points = 0;
+    this.gameState = "";
+    this.planetName = "";
+    this.flamesMeaning = "";
+    this.userExpectation = "";
+
+    if (player1Input != null) player1Input.clear();
+    if (player2Input != null) player2Input.clear();
+
+    // Reset scene state to Start Game Scene (Scene 0)
+    currentScene = 0;
+    playBGM("GAME_START_MUSIC.wav");
+
+    // Play intro video/backdrop and show the START button
+    playVideo("intro_start.mp4", false, () -> {
+        Platform.runLater(() -> {
+            if (videoPlayer != null) {
+                videoPlayer.pause();
+            }
+            hideVideoControls();
+            if (startButton != null) {
+                startButton.setVisible(true);
+                startButton.toFront();
+            }
+        });
+    });
+}
+
+@FXML
+private void onExitGameButtonClicked() {
+    stopAudio();
+    stopVideo();
+    
+    javafx.application.Platform.exit();
+    System.exit(0);
+}
+
+private void stopAudio() {
+    stopBGM();
+    stopVideo();
+}
 
     // --- Dialogue Handler ---
     private void showDialogueBox() {
@@ -527,7 +659,7 @@ public class FXMLDocumentController implements Initializable {
         updateDialogueView();
     }
 
-    private void updateDialogueView() {
+private void updateDialogueView() {
         if (dialogueIndex >= storyDialogue.length) {
             advanceSceneFromDialogue();
             return;
@@ -548,9 +680,6 @@ public class FXMLDocumentController implements Initializable {
             loadImage(charRightView, isLanceSpeaking ? lanceRaisingPath : lanceStandingPath);
 
             // Progressive Anger sequence logic:
-            // dialogueIndex 0 (Lance): Both standing standardly
-            // dialogueIndex 1 (Player 1 "Whaaaat?"): Player 1 becomes angry, Player 2 is standard
-            // dialogueIndex 2 (Player 2 "Heyyy!"): Player 1 stays angry, Player 2 also becomes angry
             if (dialogueIndex == 0) {
                 loadImage(charLeftView, char1StandingOnlyAsset);
                 loadImage(charCenterView, char2StandingOnlyAsset);
@@ -599,14 +728,31 @@ public class FXMLDocumentController implements Initializable {
             if (charLeftView != null) charLeftView.setVisible(true);
             if (charRightView != null) charRightView.setVisible(true);
 
-            if (speaker.equals("Player 1")) {
-                setSpeakerOpacity(1.0, 0.0, 0.5);
-                loadImage(charLeftView, (dialogueIndex == 0) ? char1SadPath : (dialogueIndex == 4 ? char1StandingPath : char1RaisingPath));
-                loadImage(charRightView, char2StandingPath);
-            } else if (speaker.equals("Player 2")) {
-                setSpeakerOpacity(0.5, 0.0, 1.0);
-                loadImage(charLeftView, char1StandingPath);
-                loadImage(charRightView, char2RaisingPath);
+            // Check if we are in the planet outcome scene (Scene 7) and if it resulted in a loss
+            boolean isPlanetScene = (currentScene == 7);
+            boolean isBadPlanet = isPlanetScene && "Lose".equalsIgnoreCase(this.gameState);
+
+            if (isBadPlanet) {
+                // On bad planets, both characters stay sad regardless of who is speaking
+                if (speaker.equals("Player 1")) {
+                    setSpeakerOpacity(1.0, 0.0, 0.5);
+                } else if (speaker.equals("Player 2")) {
+                    setSpeakerOpacity(0.5, 0.0, 1.0);
+                }
+                loadImage(charLeftView, char1SadPath);
+                loadImage(charRightView, char2SadPath);
+
+            } else {
+                // Standard or good planet dialogue: raise hand when speaking, stand normally when listening
+                if (speaker.equals("Player 1")) {
+                    setSpeakerOpacity(1.0, 0.0, 0.5);
+                    loadImage(charLeftView, (dialogueIndex == 0 && currentScene == 2) ? char1SadPath : char1RaisingPath);
+                    loadImage(charRightView, char2StandingPath);
+                } else if (speaker.equals("Player 2")) {
+                    setSpeakerOpacity(0.5, 0.0, 1.0);
+                    loadImage(charLeftView, char1StandingPath);
+                    loadImage(charRightView, char2RaisingPath);
+                }
             }
         }
 
@@ -627,13 +773,15 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private void advanceSceneFromDialogue() {
-        switch (currentScene) {
-            case 2: transitionToScene3Video(); break;
-            case 3: showFlamesInputScreen(); break;
-            case 4: startSpaceScene(); break;
-            case 5: showFinalPlanetOutcome(); break;
-        }
+    switch (currentScene) {
+        case 2: transitionToScene3Video(); break;
+        case 3: showFlamesInputScreen(); break;
+        case 4: startSpaceScene(); break;
+        case 5: showFinalPlanetOutcome(); break;
+        case 6: startPlanetScene(); break;
+        case 7: startFinalResultsScene(); break;
     }
+}
 
     @FXML
     private void handleNextDialogue(ActionEvent event) {
@@ -799,12 +947,17 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private void setBackdrop(String filename) {
-        if (backgroundImage != null) {
-            loadImage(backgroundImage, filename);
-            backgroundImage.setVisible(true);
-            backgroundImage.toBack();
-        }
+    // Hide mediaView so it doesn't block the background image
+    if (mediaView != null) {
+        mediaView.setVisible(false);
     }
+
+    if (backgroundImage != null) {
+        loadImage(backgroundImage, filename);
+        backgroundImage.setVisible(true);
+        backgroundImage.toBack(); // Keep it behind UI panels & dialogue, but above mediaView if mediaView is hidden
+    }
+}
 
     private void loadImage(ImageView view, String filename) {
         if (view == null || filename == null || filename.isEmpty()) return;
@@ -825,17 +978,19 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void hideAllPanels() {
-        if (genderSelectionBox != null) genderSelectionBox.setVisible(false);
-        if (flamesInputBox != null) flamesInputBox.setVisible(false);
-        if (endingResultBox != null) endingResultBox.setVisible(false);
-        if (dialogueBox != null) dialogueBox.setVisible(false);
-        
-        clearImageView(charLeftView);
-        clearImageView(charCenterView);
-        clearImageView(charRightView);
-    }
+private void hideAllPanels() {
+    if (genderSelectionBox != null) genderSelectionBox.setVisible(false);
+    if (flamesInputBox != null) flamesInputBox.setVisible(false);
+    if (endingResultBox != null) endingResultBox.setVisible(false);
+    if (dialogueBox != null) dialogueBox.setVisible(false);
+    if (winLoseBannerBox != null) winLoseBannerBox.setVisible(false);
     
+    clearImageView(charLeftView);
+    clearImageView(charCenterView);
+    clearImageView(charRightView);
+    clearImageView(winLoseBannerView);
+}
+
     //helpers sa error
 private void showInputError(String message) {
     inputErrorLabel.setText(message);
@@ -848,7 +1003,6 @@ private void hideInputError() {
     inputErrorLabel.setVisible(false);
     inputErrorLabel.setManaged(false);
 }
-    
     
     
 }
