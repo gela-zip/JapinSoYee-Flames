@@ -41,7 +41,7 @@ public class GameLogic {
                 tally++;
         }
         
-        //count mathcing letters from second name
+        //count matching letters from second name
         for (int i = 0; i < name2.length(); i++) {
             char letter = name2.charAt(i);
             if (name1.contains(String.valueOf(letter)))
@@ -99,10 +99,6 @@ public class GameLogic {
     }
     
     public boolean isGameWon() {
-        if (userPoints == 100){
-            return true;
-        } else {
-            return false;
-        }
+        return userPoints == 100;
     }
 }
