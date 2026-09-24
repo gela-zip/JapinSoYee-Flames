@@ -32,7 +32,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML private ComboBox<String> expectationDropdown;
     @FXML private ImageView p1PortraitView, p2PortraitView;
 
-    @FXML private Label resultStatusLabel, planetNameLabel, flamesResultLabel, expectationResultLabel, scoreLabel, inputErrorLabel;
+    @FXML private Label planetNameLabel, flamesResultLabel, expectationResultLabel, scoreLabel, inputErrorLabel;
     @FXML private ImageView charLeftView, charCenterView, charRightView;
     @FXML private Label speakerLabel, dialogueTextLabel;
 
@@ -66,18 +66,19 @@ public class FXMLDocumentController implements Initializable {
     private String[][] storyDialogue;
     private GameLogic gameLogic = new GameLogic();
     
+    @FXML private VBox winLoseBannerBox;
+    @FXML private ImageView winLoseBannerView;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         hideAllPanels();
 
         if (expectationDropdown != null) {
-            expectationDropdown.setItems(FXCollections.observableArrayList(
-                "Friends", "Lovers", "Acquaintances", "Married", "Enemies", "Soulmates"
-            ));
+            expectationDropdown.setItems(FXCollections.observableArrayList("Friends", "Lovers", "Acquaintances", "Married", "Enemies", "Soulmates"));
             expectationDropdown.setValue("Friends");
         }
 
-        if (mediaView != null) {
+        if (mediaView != null) { //Game window size
             mediaView.setFitWidth(800);
             mediaView.setFitHeight(600);
             mediaView.setPreserveRatio(false);
@@ -87,7 +88,7 @@ public class FXMLDocumentController implements Initializable {
             startButton.setCursor(Cursor.HAND);
         }
 
-        playBGM("GAME_START_MUSIC.wav");
+        playBGM("GAME_START_MUSIC.wav"); //GAME START
 
         playVideo("intro_start.mp4", false, () -> {
             Platform.runLater(() -> {
@@ -103,9 +104,8 @@ public class FXMLDocumentController implements Initializable {
         });
     }
 
-    // --- Step 2: Start Button Action ---
     @FXML
-    private void handleStartAction(ActionEvent event) {
+    private void handleStartAction(ActionEvent event) { //START BUTTON
         Platform.runLater(() -> {
             if (startButton != null) {
                 startButton.setVisible(false);
@@ -126,9 +126,8 @@ public class FXMLDocumentController implements Initializable {
         });
     }
 
-    private void showGenderSelectionScene() {
+    private void showGenderSelectionScene() { //SCENE 0: Character Selection
         currentScene = 1;
-        playBGM("GAME_START_MUSIC.wav");
         setBackdrop("earthbackground.jpeg");
 
         loadImage(gbPreview1, girlChoiceAsset);
@@ -145,32 +144,31 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    // --- Step 3: Gender Selection ---
+    //SCENE 0 Choices
     @FXML private void handleGirlBoyChoice(ActionEvent event) { processPairingSelection("Girl & Boy"); }
     @FXML private void handleBoyBoyChoice(ActionEvent event) { processPairingSelection("Boy & Boy"); }
     @FXML private void handleGirlGirlChoice(ActionEvent event) { processPairingSelection("Girl & Girl"); }
 
     private void processPairingSelection(String pairing) {
         this.genderPairing = pairing;
-
+       
         boolean p1IsGirl = pairing.startsWith("Girl");
         boolean p2IsBoy  = pairing.endsWith("Boy");
-
-        p1ChoiceAsset          = p1IsGirl ? girlChoiceAsset : boyChoiceAsset;
-        p2ChoiceAsset          = p2IsBoy  ? boyChoiceAsset  : girlChoiceAsset;
+        //Handling player genders
+        p1ChoiceAsset = p1IsGirl ? girlChoiceAsset : boyChoiceAsset;
+        p2ChoiceAsset = p2IsBoy  ? boyChoiceAsset  : girlChoiceAsset;
 
         char1StandingOnlyAsset = p1IsGirl ? "GirlStanding.png" : "BoyStanding.png";
-        char2StandingOnlyAsset = p2IsBoy  ? "BoyStanding.png"  : "GirlStanding.png";
+        char2StandingOnlyAsset = p2IsBoy  ? "BoyStanding.png" : "GirlStanding.png";
 
         char1RaisingPath  = p1IsGirl ? "GirlRaisingHerHandNoSpace.png" : "BoyRaisingHandNoSpace.png";
-        char1SadPath      = p1IsGirl ? "GirlSadNoSpace.png"            : "BoySadNoSpace.png";
-        char1StandingPath = p1IsGirl ? "GirlStandingNoSpace.png"       : "BoyStandingNoSpace.png";
+        char1SadPath      = p1IsGirl ? "GirlSadNoSpace.png" : "BoySadNoSpace.png"; //ok conan gray
+        char1StandingPath = p1IsGirl ? "GirlStandingNoSpace.png" : "BoyStandingNoSpace.png";
 
-        char2RaisingPath  = p2IsBoy  ? "BoyRaisingHandNoSpace.png"      : "GirlRaisingHerHandNoSpace.png";
-        char2SadPath      = p2IsBoy  ? "BoySadNoSpace.png"              : "GirlSadNoSpace.png";
-        char2StandingPath = p2IsBoy  ? "BoyStandingNoSpace.png"         : "GirlStandingNoSpace.png";
+        char2RaisingPath  = p2IsBoy  ? "BoyRaisingHandNoSpace.png" : "GirlRaisingHerHandNoSpace.png";
+        char2SadPath      = p2IsBoy  ? "BoySadNoSpace.png" : "GirlSadNoSpace.png";
+        char2StandingPath = p2IsBoy  ? "BoyStandingNoSpace.png" : "GirlStandingNoSpace.png";
         
-        // Updated Angry Assets using GirlAngry.png and BoyAngry.png
         char1AngryPath    = p1IsGirl ? "GirlAngry.png" : "BoyAngry.png";
         char2AngryPath    = p2IsBoy  ? "BoyAngry.png"  : "GirlAngry.png"; 
 
@@ -179,17 +177,16 @@ public class FXMLDocumentController implements Initializable {
             genderSelectionBox.setDisable(true);
         }
 
-        playScene1Video();
+        playScene1Video(); //move to next SCENE 1 Introduction
     }
 
-    private void playScene1Video() {
+    private void playScene1Video() { //SCENE 1 BACKGROUND MEDIA
         currentScene = 2;
         playBGM("EARTH_TRANSITION.wav");
         playVideo("scene1_video.mp4", true, this::startScene1Dialogue);
     }
 
-    // --- Dialogue Scene 1 ---
-    private void startScene1Dialogue() {
+    private void startScene1Dialogue() { //SCENE 1 DIALOGUE
         stopVideo();
         hideVideoControls();
 
@@ -197,17 +194,16 @@ public class FXMLDocumentController implements Initializable {
         setBackdrop("earthbackground.jpeg");
 
         this.storyDialogue = new String[][]{
-            {"Player 1", "*Sigh* we're in such a sad state right now huh.."},
-            {"Player 2", "Yeah, such a catastrophe destroyed the earth. We’re so lucky to be alive right now."},
-            {"Player 1", "Imagining it right now, how did we even survive that? Were we protected by our personal guardian angels?"},
-            {"Player 2", "It doesn't matter now, look around us. Everyone's dead, and we're the only ones alive."},
-            {"Player 1", "*Contemplates*"}
+            {"Player 1", "*Sigh* Look at this place... I still can't believe it."},
+            {"Player 2", "I know. Everything's gone... Honestly, it's a miracle we made it out at all."},
+            {"Player 1", "Right? How are we even standing here? Feels like someone up there was watching out for us."},
+            {"Player 2", "Maybe... but look around. It's just us now. We're completely on our own."},
+            {"Player 1", "..."}
         };
         showDialogueBox();
     }
 
-    // --- Spaceship Encounter (Scene 3) ---
-    private void transitionToScene3Video() {
+    private void transitionToScene3Video() { //Transition to SCENE 2 Lance Arrives, BACKGROUND MEDIA
         hideAllPanels();
         
         playBGM("SPACESHIP_DROP.wav");
@@ -227,7 +223,7 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void startScene3LanceEncounter() {
+    private void startScene3LanceEncounter() { //SCENE 2 DIALOGUE
         currentScene = 3;
         hideVideoControls();
 
@@ -241,20 +237,21 @@ public class FXMLDocumentController implements Initializable {
         }
 
         this.storyDialogue = new String[][]{
-            {"Player 1", "Oh my gosh, is that a spaceship I see??!"},
-            {"Player 2", "Yes!! It is a spaceship!!!"},
-            {"Player 1", "This will be our chance, we are not gonna die!"},
-            {"Lance", "Hey you two, I will be giving you a chance to live and ride on the spaceship, but you will be playing a FLAMES game first before I permit you to."},
-            {"Player 1", "Waah? FLAMES game?"},
-            {"Lance", "Yes, and the two of you will input your names for it."},
-            {"Player 1", "Ok, lets do it."}
+            {"Player 1", "Wait... l-look over there! Is that-?"},
+            {"Player 2", "A spaceship! It's actually landing right here!"},
+            {"Player 1", "Finally, a way off this dead rock!"},
+            {"Lance", "Greetings, Earthlings. I can grant you sanctuary on board, but first, a mandatory protocol."},
+            {"Player 1", "Protocol? What kind of protocol?"},
+            {"Lance", "A compatibility assessment. You know it as... FLAMES."},
+            {"Player 1", "Huh?! You mean that childhood name game?"},
+            {"Lance", "Indeed. Enter your names into the interface now."},
+            {"Player 2", "Well, it's better than staying here. Let's give it a shot."}
         };
 
         showDialogueBox();
     }
 
-    // --- FLAMES Input ---
-    private void showFlamesInputScreen() {
+    private void showFlamesInputScreen() { //SCENE 2 FLAMES Interface
         if (dialogueBox != null) dialogueBox.setVisible(false);
         clearImageView(charLeftView);
         clearImageView(charCenterView);
@@ -271,21 +268,18 @@ public class FXMLDocumentController implements Initializable {
     }
 
     @FXML
-    private void handleFlamesSubmit(ActionEvent event) {
+    private void handleFlamesSubmit(ActionEvent event) { //SCENE 2 FLAMES ERROR TRAPPING
         String name1 = player1Input.getText().trim();
         String name2 = player2Input.getText().trim();
 
-        // Hide previous error message
-        hideInputError();
+        hideInputError(); //if mironch error
 
-        // Check if either name is empty
-        if (name1.isEmpty() || name2.isEmpty()) {
+        if (name1.isEmpty() || name2.isEmpty()) { //blank input
             showInputError("Please enter both names.");
             return;
         }
 
-        // Check if names contain anything other than letters and spaces
-        if (!name1.matches("[a-zA-Z ]+") || !name2.matches("[a-zA-Z ]+")) {
+        if (!name1.matches("[a-zA-Z ]+") || !name2.matches("[a-zA-Z ]+")) { //names can only have letters and spaces
             showInputError("Names can only contain letters and spaces.");
             return;
         }
@@ -294,70 +288,17 @@ public class FXMLDocumentController implements Initializable {
             this.userExpectation = expectationDropdown.getValue();
         }
 
-        executeGameLogic(name1, name2, this.userExpectation);
+        executeGameLogic(name1, name2, this.userExpectation); //call executeGameLogic from GameLogic.java
 
         if (flamesInputBox != null) {
             flamesInputBox.setVisible(false);
         }
 
-        playBGM("SPACESHIP_DROP.wav");
-        resumeLanceEncounterVideo();
+        playBGM("SPACESHIP_DROP.wav"); //Nisud na silas spaceship haha
+        resumeLanceEncounterVideo(); //close FLAMES interface
     }
 
-    private void resumeLanceEncounterVideo() {
-        if (mediaView != null) {
-            mediaView.setVisible(true);
-            mediaView.toBack();
-        }
-
-        if (videoPlayer != null) {
-            videoPlayer.setOnEndOfMedia(this::startSpaceshipBackgroundScene);
-            videoPlayer.play();
-        } else {
-            startSpaceshipBackgroundScene();
-        }
-    }
-
-    // --- Spaceship Background Scene ---
-    private void startSpaceshipBackgroundScene() {
-        currentScene = 4;
-        stopVideo();
-
-        playBGM("SPACESHIP_DROP.wav");
-        setBackdrop("SPACESHIP BACKGROUND.png");
-
-        if (gameLogic.isRandomResult()) {
-            this.storyDialogue = new String[][]{
-                {"Lance", "Wooow, you guys really don't have any similar characters in your names, huh?"},
-                {"Player 1", "What are you talking about?"},
-                {"Lance", "Oh well! You guys are " + flamesMeaning + " from now on."},
-                {"Lance", "Now then, let's spin the wheel for which random planet we'll land on!"},
-                {"Player 2", "HEY-!"}
-            };
-        } else {
-            this.storyDialogue = new String[][]{
-                {"Lance", "Oh, so you guys are " + flamesMeaning + ", huh?"},
-                {"Player 1", "Whaaaat?"},
-                {"Lance", "Now then, let's spin the wheel for which random planet we'll land on!"},
-                {"Player 2", "HEY-!"}
-            };
-        }
-
-        showDialogueBox();
-    }
-
-    // --- Space Scene ---
-    private void startSpaceScene() {
-        currentScene = 5;
-        stopVideo();
-
-        playBGM("SPACESHIP_DROP.wav");
-        setBackdrop("space.png");
-
-        showFinalPlanetOutcome();
-    }
-    
-//game logic plug
+    //game logic plug from GameLogic.java
     private void executeGameLogic(String name1, String name2, String expectation) {
         gameLogic.resetGame(); //init
         
@@ -376,60 +317,125 @@ public class FXMLDocumentController implements Initializable {
         } else {
             this.gameState = "Lose";
         }
+    }    
+    
+    private void resumeLanceEncounterVideo() { //Cleaning up
+        if (mediaView != null) {
+            mediaView.setVisible(true);
+            mediaView.toBack();
+        }
+
+        if (videoPlayer != null) {
+            videoPlayer.setOnEndOfMedia(this::startSpaceshipBackgroundScene);
+            videoPlayer.play();
+        } else {
+            startSpaceshipBackgroundScene(); //MOVE TO SCENE 3
+        }
     }
 
+    private void startSpaceshipBackgroundScene() { //SCENE 3 MEDIA BACKGROUND AND DIALOGUE
+        currentScene = 4;
+        stopVideo();
+
+        playBGM("SPACESHIP_DROP.wav");
+        setBackdrop("SPACESHIP BACKGROUND.png");
+
+        if (gameLogic.isRandomResult()) {
+            this.storyDialogue = new String[][]{
+                {"Lance", "Wooow, you guys don't have a single matching letter in your names!"},
+                {"Player 1", "Wait, what does that even mean? So what?"},
+                {"Lance", "Oh well! The cosmic wheel of fate dictates you are" + flamesMeaning + " from now on."},
+                {"Lance", "Now then, let's spin the wheel to see which random planet we'll land on!"},
+                {"Player 2", "HEY-!"}
+            };
+        } else {
+            this.storyDialogue = new String[][]{
+                {"Lance", "Well, look at that! The calculations are complete."},
+                {"Player 1", "And? What did it say?"},
+                {"Lance", "Oh, so you two are " + flamesMeaning + ", huh?"},
+                {"Lance", "Now then, let's spin the wheel to see which random planet we'll land on!"},
+                {"Player 2", "HEY-!"}
+            };
+        }
+
+        showDialogueBox();
+    }
+
+    private void startSpaceScene() { //TRANSITION FOR SCENE 4 with planet in corner haha
+        currentScene = 5;
+        stopVideo();
+
+        playBGM("SPACESHIP_DROP.wav");
+        setBackdrop("space.png");
+
+        showFinalPlanetOutcome();
+    }
+    
     @FXML
     private void handleContinueToPlanet(ActionEvent event) {
-        startPlanetScene();
+        startPlanetScene(); // Advances scene state correctly to Scene 7
     }
     
     private void showFinalPlanetOutcome() {
         currentScene = 6;
-        hideAllPanels();
-        stopVideo();
+        hideAllPanels(); 
 
-        boolean matchedExpectation = this.flamesMeaning.equalsIgnoreCase(this.userExpectation);
-        boolean isWin = "Win".equalsIgnoreCase(this.gameState);
-
-        if (resultStatusLabel != null) {
-            resultStatusLabel.setText(isWin ? "YOU WIN!" : "YOU LOSE!");
-            resultStatusLabel.setStyle(isWin 
-                ? "-fx-text-fill: #4ADE80; -fx-font-weight: bold; -fx-font-size: 26px;"
-                : "-fx-text-fill: #F87171; -fx-font-weight: bold; -fx-font-size: 26px;");
+        String planetImageAsset = "";
+        if ("Fomalhaut".equalsIgnoreCase(planetName)) {
+            planetImageAsset = "PLANET_FOMALHAUT.png";
+        } else if ("LHS 1140 b".equalsIgnoreCase(planetName)) {
+            planetImageAsset = "PLANET_LHS1140.png";
+        } else if ("Alpha Wolf".equalsIgnoreCase(planetName)) {
+            planetImageAsset = "PLANET_ALPHAWOLF.png";
+        } else if ("Mercury".equalsIgnoreCase(planetName)) {
+            planetImageAsset = "PLANET_MERCURY.png";
+        } else if ("ERIS".equalsIgnoreCase(planetName)) {
+            planetImageAsset = "PLANET_ERIS.png";
+        } else if ("Slytherin".equalsIgnoreCase(planetName)) {
+            planetImageAsset = "PLANET_SLYTHERIN.png";
         }
 
-        if (planetNameLabel != null) planetNameLabel.setText("Landed on: " + planetName);
-        if (flamesResultLabel != null) flamesResultLabel.setText("FLAMES Result: " + flamesMeaning);
-        if (expectationResultLabel != null) expectationResultLabel.setText("Expected: " + userExpectation + (matchedExpectation ? " ✓" : " ✗"));
-        if (scoreLabel != null) scoreLabel.setText("Total Points: " + points + " / 100");
+        if (charLeftView != null) charLeftView.setVisible(false);
+        if (charCenterView != null) charCenterView.setVisible(false);
 
-        if (endingResultBox != null) {
-            bringToTopLevelFront(endingResultBox);
+        if (!planetImageAsset.isEmpty() && charRightView != null) { //overlays planet on the bottom right
+            loadImage(charRightView, planetImageAsset);
+            charRightView.setVisible(true);
+            charRightView.setOpacity(1.0);
         }
-    }
+
+        playVideo("spaceship_travel.mp4", false, () -> {
+            Platform.runLater(() -> {
+                if (charRightView != null) {
+                    clearImageView(charRightView);
+                    charRightView.setVisible(false);
+                }
+                startPlanetScene();
+            });
+        });
+
+        if (charRightView != null) {
+            bringToTopLevelFront(charRightView);
+        }
+    }    
     
     private void startPlanetScene() {
         currentScene = 7;
-        
+
         if (endingResultBox != null) {
             endingResultBox.setVisible(false);
         }
 
         if (planetName.equals("Fomalhaut")) {
             startFomalhautScene();
-
         } else if (planetName.equals("LHS 1140 b")) {
             startLHS1140Scene();
-
         } else if (planetName.equals("Alpha Wolf")) {
             startAlphaWolfScene();
-
         } else if (planetName.equals("Mercury")) {
             startMercuryScene();
-
         } else if (planetName.equals("ERIS")) {
             startErisScene();
-
         } else if (planetName.equals("Slytherin")) {
             startSlytherinScene();
         }
@@ -437,85 +443,171 @@ public class FXMLDocumentController implements Initializable {
     //planet branches
     private void startFomalhautScene() {
         currentScene = 7;
-
         setBackdrop("FOMALHAUT.png");
-
         this.storyDialogue = new String[][]{
-            {"Player 1", "text?"},
-            {"Player 2", "text-!"}
+            {"Player 1", "What is this planet?"},
+            {"Player 2", "Disgursting sh1et.."}
         };
+            showDialogueBox();
+        }
 
-        showDialogueBox();
-    }
-    
     private void startLHS1140Scene() {
         currentScene = 7;
-
         setBackdrop("LHS1140.png");
-
         this.storyDialogue = new String[][]{
-            {"Player 1", "Wow! A coincidence we landed on a planet that is similar to our planet Earth!"},
-            {"Player 2", "Exactly! We can rebuild our lives here"}
+            {"Player 1", "We landed on a planet that is similar to our planet Earth!"},
+            {"Player 2", "We can rebuild our lives here"}
         };
-
-        showDialogueBox();
-    }
+            showDialogueBox();
+        }
     
     private void startAlphaWolfScene() {
         currentScene = 7;
-
         setBackdrop("ALPHAWOLF.png");
-
         this.storyDialogue = new String[][]{
-            {"Player 1", "Oh my gosh! Its so cold in here *brrrr*"},
-            {"Player 2", "*suffocates*"}
+            {"Player 1", "It's so cold in here *brrrr*"},
+            {"Player 2", "*Suffocates*"}
         };
-
         showDialogueBox();
     }
     
     private void startMercuryScene() {
         currentScene = 7;
-
         setBackdrop("MERCURY.png");
-
         this.storyDialogue = new String[][]{
-            {"Player 1", "Did we just land on the planet near our star?"},
-            {"Player 2", "Oh no, I can see our star bigger than ever.. I can already feel the heat."}
+            {"Player 1", "Did we just land on the planet near the sun?"},
+            {"Player 2", "I can see the sun right up close.. It's so hot!"}
         };
-
         showDialogueBox();
     }
     
     private void startErisScene() {
         currentScene = 7;
-
         setBackdrop("ERIS.png");
-
         this.storyDialogue = new String[][]{
-            {"Player 1", "Wow! A coincidence we landed on a planet that is similar to our planet Earth!"},
-            {"Player 2", "Exactly! We can rebuild our lives here"}
+            {"Player 1", "Woah.. look at the mountains!"},
+            {"Player 2", "The air here is so fresh!"}
         };
-
         showDialogueBox();
     }
     
     private void startSlytherinScene() {
         currentScene = 7;
-
         setBackdrop("SLYTHERIN.png");
-
         this.storyDialogue = new String[][]{
             {"Player 1", "THIS PLANET IS FULL OF STORMS!"},
-            {"Player 2", "OUR SPACESHIP IS BEING CARRIED AWAY!! *screams*"}
+            {"Player 2", "OUR SPACESHIP IS BEING CARRIED AWAY!! *Screams*"}
         };
-
         showDialogueBox();
     }
+    
+    private void startFinalResultsScene() {
+        currentScene = 8;
+        hideAllPanels();
+        stopAudio();
 
-    // --- Dialogue Handler ---
-    private void showDialogueBox() {
-        if (charLeftView != null) charLeftView.setVisible(true);
+        setBackdrop("space.png");
+
+        if (charLeftView != null) charLeftView.setVisible(false);
+        if (charCenterView != null) charCenterView.setVisible(false);
+        if (charRightView != null) charRightView.setVisible(false);
+
+        boolean matchedExpectation = this.flamesMeaning != null && 
+                                     this.flamesMeaning.equalsIgnoreCase(this.userExpectation);
+        boolean isWin = "Win".equalsIgnoreCase(this.gameState);
+
+        if (isWin) {
+            playBGM("YOU_WIN.wav");
+        } else {
+            playBGM("YOU_LOSE.wav");
+        }
+
+        if (planetNameLabel != null) {
+            planetNameLabel.setText("Landed on: " + (planetName != null ? planetName : "Unknown"));
+        }
+
+        if (flamesResultLabel != null) {
+            flamesResultLabel.setText("FLAMES Result: " + (flamesMeaning != null ? flamesMeaning : "None"));
+        }
+
+        if (expectationResultLabel != null) {
+            expectationResultLabel.setText("Expected: " + (userExpectation != null ? userExpectation : "None") 
+                + (matchedExpectation ? " ✓" : " ✗"));
+        }
+
+        if (scoreLabel != null) {
+            scoreLabel.setText("Total Points: " + points + " / 100");
+        }
+
+        if (endingResultBox != null) {
+            endingResultBox.setVisible(true);
+            bringToTopLevelFront(endingResultBox);
+        }
+
+        String bannerImageAsset = isWin ? "You_Win.png" : "You_Lose.png";
+
+        if (winLoseBannerView != null) {
+            loadImage(winLoseBannerView, bannerImageAsset);
+            winLoseBannerView.setVisible(true);
+        }
+
+        if (winLoseBannerBox != null) {
+            winLoseBannerBox.setVisible(true);
+            winLoseBannerBox.setManaged(true);
+            winLoseBannerBox.toFront();
+            bringToTopLevelFront(winLoseBannerBox);
+        }
+    }
+
+    @FXML
+    private void onRetryButtonClicked() {
+        stopAudio();
+        hideAllPanels();
+
+        // Reset game state variables
+        this.points = 0;
+        this.gameState = "";
+        this.planetName = "";
+        this.flamesMeaning = "";
+        this.userExpectation = "";
+
+        if (player1Input != null) player1Input.clear();
+        if (player2Input != null) player2Input.clear();
+
+        // Reset scene state to Start Game Scene (Scene 0)
+        currentScene = 0;
+        playBGM("GAME_START_MUSIC.wav");
+
+        // Play intro video/backdrop and show the START button
+        playVideo("intro_start.mp4", false, () -> {
+            Platform.runLater(() -> {
+                if (videoPlayer != null) {
+                    videoPlayer.pause();
+                }
+                hideVideoControls();
+                if (startButton != null) {
+                    startButton.setVisible(true);
+                    startButton.toFront();
+                }
+            });
+        });
+    }
+
+    @FXML
+    private void onExitGameButtonClicked() {
+        stopAudio();
+        stopVideo();
+
+        javafx.application.Platform.exit();
+        System.exit(0);
+    }
+
+    private void stopAudio() {
+        stopBGM();
+        stopVideo();
+    }
+
+    private void showDialogueBox() { //handles the dialogue and display speaking character sprite
         if (charCenterView != null) charCenterView.setVisible(true);
         if (charRightView != null) charRightView.setVisible(true);
 
@@ -547,10 +639,6 @@ public class FXMLDocumentController implements Initializable {
             boolean isLanceSpeaking = speaker.equals("Lance");
             loadImage(charRightView, isLanceSpeaking ? lanceRaisingPath : lanceStandingPath);
 
-            // Progressive Anger sequence logic:
-            // dialogueIndex 0 (Lance): Both standing standardly
-            // dialogueIndex 1 (Player 1 "Whaaaat?"): Player 1 becomes angry, Player 2 is standard
-            // dialogueIndex 2 (Player 2 "Heyyy!"): Player 1 stays angry, Player 2 also becomes angry
             if (dialogueIndex == 0) {
                 loadImage(charLeftView, char1StandingOnlyAsset);
                 loadImage(charCenterView, char2StandingOnlyAsset);
@@ -563,9 +651,8 @@ public class FXMLDocumentController implements Initializable {
             }
 
             setSpeakerOpacity(speaker.equals("Player 1") ? 1.0 : 0.5,
-                              speaker.equals("Player 2") ? 1.0 : 0.5,
-                              isLanceSpeaking            ? 1.0 : 0.5);
-
+                speaker.equals("Player 2") ? 1.0 : 0.5,
+                isLanceSpeaking ? 1.0 : 0.5);
         } else if (currentScene == 3) {
             if (charLeftView != null) charLeftView.setVisible(true);
             if (charCenterView != null) charCenterView.setVisible(true);
@@ -591,22 +678,35 @@ public class FXMLDocumentController implements Initializable {
             }
 
             setSpeakerOpacity(speaker.equals("Player 1") ? 1.0 : 0.5,
-                              speaker.equals("Player 2") ? 1.0 : 0.5,
-                              isLanceSpeaking            ? 1.0 : 0.5);
-
+                speaker.equals("Player 2") ? 1.0 : 0.5,
+                isLanceSpeaking ? 1.0 : 0.5);
         } else {
             if (charCenterView != null) charCenterView.setVisible(false);
             if (charLeftView != null) charLeftView.setVisible(true);
             if (charRightView != null) charRightView.setVisible(true);
 
-            if (speaker.equals("Player 1")) {
-                setSpeakerOpacity(1.0, 0.0, 0.5);
-                loadImage(charLeftView, (dialogueIndex == 0) ? char1SadPath : (dialogueIndex == 4 ? char1StandingPath : char1RaisingPath));
-                loadImage(charRightView, char2StandingPath);
-            } else if (speaker.equals("Player 2")) {
-                setSpeakerOpacity(0.5, 0.0, 1.0);
-                loadImage(charLeftView, char1StandingPath);
-                loadImage(charRightView, char2RaisingPath);
+            // Check if we are in the planet outcome scene (Scene 7) and if it resulted in a loss
+            boolean isPlanetScene = (currentScene == 7);
+            boolean isBadPlanet = isPlanetScene && "Lose".equalsIgnoreCase(this.gameState);
+
+            if (isBadPlanet) {
+                if (speaker.equals("Player 1")) {
+                    setSpeakerOpacity(1.0, 0.0, 0.5);
+                } else if (speaker.equals("Player 2")) {
+                    setSpeakerOpacity(0.5, 0.0, 1.0);
+                }
+                loadImage(charLeftView, char1SadPath);
+                loadImage(charRightView, char2SadPath);
+            } else {
+                if (speaker.equals("Player 1")) {
+                    setSpeakerOpacity(1.0, 0.0, 0.5);
+                    loadImage(charLeftView, (dialogueIndex == 0 && currentScene == 2) ? char1SadPath : char1RaisingPath);
+                    loadImage(charRightView, char2StandingPath);
+                } else if (speaker.equals("Player 2")) {
+                    setSpeakerOpacity(0.5, 0.0, 1.0);
+                    loadImage(charLeftView, char1StandingPath);
+                    loadImage(charRightView, char2RaisingPath);
+                }
             }
         }
 
@@ -627,13 +727,15 @@ public class FXMLDocumentController implements Initializable {
     }
 
     private void advanceSceneFromDialogue() {
-        switch (currentScene) {
-            case 2: transitionToScene3Video(); break;
-            case 3: showFlamesInputScreen(); break;
-            case 4: startSpaceScene(); break;
-            case 5: showFinalPlanetOutcome(); break;
-        }
+    switch (currentScene) {
+        case 2: transitionToScene3Video(); break;
+        case 3: showFlamesInputScreen(); break;
+        case 4: startSpaceScene(); break;
+        case 5: showFinalPlanetOutcome(); break;
+        case 6: startPlanetScene(); break;
+        case 7: startFinalResultsScene(); break;
     }
+}
 
     @FXML
     private void handleNextDialogue(ActionEvent event) {
@@ -668,7 +770,6 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    // --- Audio & Media Handlers ---
     private void playBGM(String filename) {
         if (bgmPlayer != null && bgmPlayer.getMedia().getSource().contains(filename)) {
             if (bgmPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
@@ -706,7 +807,6 @@ public class FXMLDocumentController implements Initializable {
                 
                 videoPlayer.setMute(false);
                 videoPlayer.setVolume(0.8);
-
                 mediaView.setMediaPlayer(videoPlayer);
 
                 videoPlayer.setOnEndOfMedia(() -> {
@@ -740,7 +840,7 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void stopBGM() {
+    private void stopBGM(){
         if (bgmPlayer != null) {
             bgmPlayer.stop();
             bgmPlayer.dispose();
@@ -748,7 +848,7 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void stopVideo() {
+    private void stopVideo(){
         if (mediaView != null) {
             mediaView.setVisible(false);
             mediaView.toBack();
@@ -761,7 +861,7 @@ public class FXMLDocumentController implements Initializable {
         hideVideoControls();
     }
 
-    private void bringToTopLevelFront(Node node) {
+    private void bringToTopLevelFront(Node node){
         if (node == null) return;
         node.setVisible(true);
         node.setDisable(false);
@@ -777,7 +877,7 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void showVideoControls() {
+    private void showVideoControls(){
         if (mediaView != null) {
             mediaView.setVisible(true);
             mediaView.toFront();
@@ -793,20 +893,24 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void hideVideoControls() {
+    private void hideVideoControls(){
         if (skipButton != null) skipButton.setVisible(false);
         if (pauseButton != null) pauseButton.setVisible(false);
     }
 
-    private void setBackdrop(String filename) {
-        if (backgroundImage != null) {
-            loadImage(backgroundImage, filename);
-            backgroundImage.setVisible(true);
-            backgroundImage.toBack();
-        }
+    private void setBackdrop(String filename){ //hide mediaView so it doesn't block the background image
+        if (mediaView != null) {
+            mediaView.setVisible(false);
     }
 
-    private void loadImage(ImageView view, String filename) {
+    if (backgroundImage != null){ //keep it behind UI panels & dialogue, but above mediaView if mediaView is hidden
+        loadImage(backgroundImage, filename);
+        backgroundImage.setVisible(true);
+        backgroundImage.toBack();
+    }
+}
+
+    private void loadImage(ImageView view, String filename){
         if (view == null || filename == null || filename.isEmpty()) return;
         try {
             URL resource = getClass().getResource("/flamesgame/assets/" + filename);
@@ -818,38 +922,37 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void clearImageView(ImageView view) {
+    private void clearImageView(ImageView view){
         if (view != null) {
             view.setImage(null);
             view.setVisible(false);
         }
     }
 
-    private void hideAllPanels() {
+    private void hideAllPanels(){
         if (genderSelectionBox != null) genderSelectionBox.setVisible(false);
         if (flamesInputBox != null) flamesInputBox.setVisible(false);
         if (endingResultBox != null) endingResultBox.setVisible(false);
         if (dialogueBox != null) dialogueBox.setVisible(false);
-        
+        if (winLoseBannerBox != null) winLoseBannerBox.setVisible(false);
+
         clearImageView(charLeftView);
         clearImageView(charCenterView);
         clearImageView(charRightView);
+        clearImageView(winLoseBannerView);
+    }
+
+    //helpers sa error
+    private void showInputError(String message){
+        inputErrorLabel.setText(message);
+        inputErrorLabel.setVisible(true);
+        inputErrorLabel.setManaged(true);
     }
     
-    //helpers sa error
-private void showInputError(String message) {
-    inputErrorLabel.setText(message);
-    inputErrorLabel.setVisible(true);
-    inputErrorLabel.setManaged(true);
-}
-    
-private void hideInputError() {
-    inputErrorLabel.setText("");
-    inputErrorLabel.setVisible(false);
-    inputErrorLabel.setManaged(false);
-}
-    
-    
-    
+    private void hideInputError(){
+        inputErrorLabel.setText("");
+        inputErrorLabel.setVisible(false);
+        inputErrorLabel.setManaged(false);
+    }  
 }
 
