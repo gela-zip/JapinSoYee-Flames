@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.text.Font;
 
 public class FXMLDocumentController implements Initializable {
 
@@ -35,6 +36,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML private Label planetNameLabel, flamesResultLabel, expectationResultLabel, scoreLabel, inputErrorLabel;
     @FXML private ImageView charLeftView, charCenterView, charRightView;
     @FXML private Label speakerLabel, dialogueTextLabel;
+    @FXML private Label persistentPointCounterLabel;
 
     private MediaPlayer videoPlayer;
     private MediaPlayer bgmPlayer;
@@ -62,47 +64,64 @@ public class FXMLDocumentController implements Initializable {
     
     private final String lanceStandingPath = "LanceStanding.png";
     private final String lanceRaisingPath  = "LanceRaisingHisArms.png";
-
+    private boolean planetPointsCalculated = false;
     private String[][] storyDialogue;
+    private Planet currentPlanet;
     private GameLogic gameLogic = new GameLogic();
     
     @FXML private VBox winLoseBannerBox;
     @FXML private ImageView winLoseBannerView;
     
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        hideAllPanels();
-
-        if (expectationDropdown != null) {
-            expectationDropdown.setItems(FXCollections.observableArrayList("Friends", "Lovers", "Acquaintances", "Married", "Enemies", "Soulmates"));
-            expectationDropdown.setValue("Friends");
+public void initialize(URL url, ResourceBundle rb) {
+    // Register font family into JavaFX global font registry
+    try {
+        Font loadedFont = Font.loadFont(
+            getClass().getResourceAsStream("/flamesgame/assets/PressStart2P-Regular.ttf"), 12
+        );
+        if (loadedFont != null) {
+            System.out.println("Pixel font registered successfully as: " + loadedFont.getFamily());
+        } else {
+            System.err.println("Font file not found or failed to load. Check resource path.");
         }
-
-        if (mediaView != null) { //Game window size
-            mediaView.setFitWidth(800);
-            mediaView.setFitHeight(600);
-            mediaView.setPreserveRatio(false);
-        }
-
-        if (startButton != null) {
-            startButton.setCursor(Cursor.HAND);
-        }
-
-        playBGM("GAME_START_MUSIC.wav"); //GAME START
-
-        playVideo("intro_start.mp4", false, () -> {
-            Platform.runLater(() -> {
-                if (videoPlayer != null) {
-                    videoPlayer.pause();
-                }
-                hideVideoControls();
-                if (startButton != null) {
-                    startButton.setVisible(true);
-                    startButton.toFront();
-                }
-            });
-        });
+    } catch (Exception e) {
+        System.err.println("Font loading exception: " + e.getMessage());
     }
+
+    hideAllPanels();
+
+    if (expectationDropdown != null) {
+        expectationDropdown.setItems(FXCollections.observableArrayList(
+            "Friends", "Lovers", "Acquaintances", "Married", "Enemies", "Soulmates"
+        ));
+        expectationDropdown.setValue("Friends");
+    }
+
+    if (mediaView != null) {
+        mediaView.setFitWidth(800);
+        mediaView.setFitHeight(600);
+        mediaView.setPreserveRatio(false);
+    }
+
+    if (startButton != null) {
+        startButton.setCursor(Cursor.HAND);
+    }
+
+    playBGM("GAME_START_MUSIC.wav");
+
+    playVideo("intro_start.mp4", false, () -> {
+        Platform.runLater(() -> {
+            if (videoPlayer != null) {
+                videoPlayer.pause();
+            }
+            hideVideoControls();
+            if (startButton != null) {
+                startButton.setVisible(true);
+                startButton.toFront();
+            }
+        });
+    });
+}
 
     @FXML
     private void handleStartAction(ActionEvent event) { //START BUTTON
@@ -261,7 +280,8 @@ public class FXMLDocumentController implements Initializable {
         loadImage(p2PortraitView, p2ChoiceAsset);
 
         playBGM("FLAMES_GAME_MATCH.wav");
-
+        this.points = 0;
+        updatePointCounterDisplay();
         if (flamesInputBox != null) {
             bringToTopLevelFront(flamesInputBox);
         }
@@ -300,25 +320,23 @@ public class FXMLDocumentController implements Initializable {
 
     //game logic plug from GameLogic.java
     private void executeGameLogic(String name1, String name2, String expectation) {
-        gameLogic.resetGame(); //init
-        
-        int tally = gameLogic.getTally(name1, name2); //get tally
-        this.flamesMeaning = gameLogic.flamesResult(tally); //index tally on FLAMES
-        gameLogic.calculateRelationshipPoints(flamesMeaning, expectation); //set points
+        gameLogic.resetGame();
+        planetPointsCalculated = false;
+        int tally = gameLogic.getTally(name1, name2);
+        this.flamesMeaning = gameLogic.flamesResult(tally);
 
-        Planet planet = gameLogic.choosePlanet(); //random planet chooser
-        this.planetName = planet.getName();
-        gameLogic.calculatePlanetPoints(planet); //set planet points
+        // Stage 1: Only add relationship points here
+        gameLogic.calculateRelationshipPoints(flamesMeaning, expectation);
+        this.points = gameLogic.getUserPoints();
 
-        this.points = gameLogic.getUserPoints(); //get points to figure if game is won
+        // Store planet object for later without calculating planet points yet
+        this.currentPlanet = gameLogic.choosePlanet();
+        this.planetName = this.currentPlanet.getName();
 
-        if (gameLogic.isGameWon()) {
-            this.gameState = "Win";
-        } else {
-            this.gameState = "Lose";
-        }
+        // Display initial score after FLAMES calculation (e.g. 50/100)
+        updatePointCounterDisplay();
     }    
-    
+
     private void resumeLanceEncounterVideo() { //Cleaning up
         if (mediaView != null) {
             mediaView.setVisible(true);
@@ -339,7 +357,7 @@ public class FXMLDocumentController implements Initializable {
 
         playBGM("SPACESHIP_DROP.wav");
         setBackdrop("SPACESHIP BACKGROUND.png");
-
+        updatePointCounterDisplay();
         if (gameLogic.isRandomResult()) {
             this.storyDialogue = new String[][]{
                 {"Lance", "Wooow, you guys don't have a single matching letter in your names!"},
@@ -379,7 +397,7 @@ public class FXMLDocumentController implements Initializable {
     private void showFinalPlanetOutcome() {
         currentScene = 6;
         hideAllPanels(); 
-
+        updatePointCounterDisplay();
         String planetImageAsset = "";
         if ("Fomalhaut".equalsIgnoreCase(planetName)) {
             planetImageAsset = "PLANET_FOMALHAUT.png";
@@ -425,7 +443,21 @@ public class FXMLDocumentController implements Initializable {
         if (endingResultBox != null) {
             endingResultBox.setVisible(false);
         }
+        
+        if (this.currentPlanet != null && !planetPointsCalculated) {
+        gameLogic.calculatePlanetPoints(this.currentPlanet);
+        this.points = gameLogic.getUserPoints(); // Gets 25+50=75 OR 50+50=100
 
+        if (gameLogic.isGameWon()) {
+            this.gameState = "Win";
+        } else {
+            this.gameState = "Lose";
+        }
+
+        planetPointsCalculated = true; // Block future double-calculations
+    }
+        
+        updatePointCounterDisplay();
         if (planetName.equals("Fomalhaut")) {
             startFomalhautScene();
         } else if (planetName.equals("LHS 1140 b")) {
@@ -505,6 +537,10 @@ public class FXMLDocumentController implements Initializable {
         currentScene = 8;
         hideAllPanels();
         stopAudio();
+        
+        if (persistentPointCounterLabel != null) {
+            persistentPointCounterLabel.setVisible(false);
+        }
 
         setBackdrop("space.png");
 
@@ -515,6 +551,14 @@ public class FXMLDocumentController implements Initializable {
         boolean matchedExpectation = this.flamesMeaning != null && 
                                      this.flamesMeaning.equalsIgnoreCase(this.userExpectation);
         boolean isWin = "Win".equalsIgnoreCase(this.gameState);
+        
+        if (endingResultBox != null) {
+        if (isWin) {
+            endingResultBox.setStyle("-fx-border-color: #4ADE80;"); // Green for Win
+        } else {
+            endingResultBox.setStyle("-fx-border-color: #EF4444;"); // Red for Lose
+        }
+    }
 
         if (isWin) {
             playBGM("YOU_WIN.wav");
@@ -569,28 +613,19 @@ public class FXMLDocumentController implements Initializable {
         this.gameState = "";
         this.planetName = "";
         this.flamesMeaning = "";
-        this.userExpectation = "";
+        this.userExpectation = "Friends";
 
         if (player1Input != null) player1Input.clear();
         if (player2Input != null) player2Input.clear();
+        if (expectationDropdown != null) expectationDropdown.setValue("Friends");
+        if (persistentPointCounterLabel != null) {
+            persistentPointCounterLabel.setText("Point Counter: 0/100");
+            persistentPointCounterLabel.setVisible(false);
+        }
 
-        // Reset scene state to Start Game Scene (Scene 0)
-        currentScene = 0;
+        // Open Gender Selection Scene directly
         playBGM("GAME_START_MUSIC.wav");
-
-        // Play intro video/backdrop and show the START button
-        playVideo("intro_start.mp4", false, () -> {
-            Platform.runLater(() -> {
-                if (videoPlayer != null) {
-                    videoPlayer.pause();
-                }
-                hideVideoControls();
-                if (startButton != null) {
-                    startButton.setVisible(true);
-                    startButton.toFront();
-                }
-            });
-        });
+        showGenderSelectionScene();
     }
 
     @FXML
@@ -653,6 +688,7 @@ public class FXMLDocumentController implements Initializable {
             setSpeakerOpacity(speaker.equals("Player 1") ? 1.0 : 0.5,
                 speaker.equals("Player 2") ? 1.0 : 0.5,
                 isLanceSpeaking ? 1.0 : 0.5);
+
         } else if (currentScene == 3) {
             if (charLeftView != null) charLeftView.setVisible(true);
             if (charCenterView != null) charCenterView.setVisible(true);
@@ -680,29 +716,50 @@ public class FXMLDocumentController implements Initializable {
             setSpeakerOpacity(speaker.equals("Player 1") ? 1.0 : 0.5,
                 speaker.equals("Player 2") ? 1.0 : 0.5,
                 isLanceSpeaking ? 1.0 : 0.5);
-        } else {
+
+        } else if (currentScene == 2) {
+            // Earth Scene (Scene 2): Player 1 on left, Player 2 on right
             if (charCenterView != null) charCenterView.setVisible(false);
             if (charLeftView != null) charLeftView.setVisible(true);
             if (charRightView != null) charRightView.setVisible(true);
 
-            // Check if we are in the planet outcome scene (Scene 7) and if it resulted in a loss
-            boolean isPlanetScene = (currentScene == 7);
-            boolean isBadPlanet = isPlanetScene && "Lose".equalsIgnoreCase(this.gameState);
+            if (speaker.equals("Player 1")) {
+                setSpeakerOpacity(1.0, 0.0, 0.5);
+                loadImage(charLeftView, char1RaisingPath);
+                loadImage(charRightView, char2StandingPath);
+            } else {
+                setSpeakerOpacity(0.5, 0.0, 1.0);
+                loadImage(charLeftView, char1StandingPath);
+                loadImage(charRightView, char2RaisingPath);
+            }
+
+        } else {
+            // Planet Outcome Scene (Scene 7)
+            if (charCenterView != null) charCenterView.setVisible(false);
+            if (charLeftView != null) charLeftView.setVisible(true);
+            if (charRightView != null) charRightView.setVisible(true);
+
+            boolean isBadPlanet = currentPlanet != null
+            && "UNSAFE".equalsIgnoreCase(currentPlanet.getState());
 
             if (isBadPlanet) {
+            // Unsafe planet -> sad reactions
                 if (speaker.equals("Player 1")) {
                     setSpeakerOpacity(1.0, 0.0, 0.5);
-                } else if (speaker.equals("Player 2")) {
+                } else {
                     setSpeakerOpacity(0.5, 0.0, 1.0);
                 }
+
                 loadImage(charLeftView, char1SadPath);
                 loadImage(charRightView, char2SadPath);
+
             } else {
+                // Safe/good planet -> happy/normal reactions
                 if (speaker.equals("Player 1")) {
                     setSpeakerOpacity(1.0, 0.0, 0.5);
-                    loadImage(charLeftView, (dialogueIndex == 0 && currentScene == 2) ? char1SadPath : char1RaisingPath);
+                    loadImage(charLeftView, char1RaisingPath);
                     loadImage(charRightView, char2StandingPath);
-                } else if (speaker.equals("Player 2")) {
+                } else {
                     setSpeakerOpacity(0.5, 0.0, 1.0);
                     loadImage(charLeftView, char1StandingPath);
                     loadImage(charRightView, char2RaisingPath);
@@ -929,18 +986,24 @@ public class FXMLDocumentController implements Initializable {
         }
     }
 
-    private void hideAllPanels(){
-        if (genderSelectionBox != null) genderSelectionBox.setVisible(false);
-        if (flamesInputBox != null) flamesInputBox.setVisible(false);
-        if (endingResultBox != null) endingResultBox.setVisible(false);
-        if (dialogueBox != null) dialogueBox.setVisible(false);
-        if (winLoseBannerBox != null) winLoseBannerBox.setVisible(false);
+   private void hideAllPanels(){
+    if (genderSelectionBox != null) genderSelectionBox.setVisible(false);
+    if (flamesInputBox != null) flamesInputBox.setVisible(false);
+    if (endingResultBox != null) endingResultBox.setVisible(false);
+    if (dialogueBox != null) dialogueBox.setVisible(false);
+    if (winLoseBannerBox != null) winLoseBannerBox.setVisible(false);
 
-        clearImageView(charLeftView);
-        clearImageView(charCenterView);
-        clearImageView(charRightView);
-        clearImageView(winLoseBannerView);
+    clearImageView(charLeftView);
+    clearImageView(charCenterView);
+    clearImageView(charRightView);
+    clearImageView(winLoseBannerView);
+
+    // Keep counter visible if points are active
+    if (persistentPointCounterLabel != null && currentScene >= 3) {
+        persistentPointCounterLabel.setVisible(true);
+        bringToTopLevelFront(persistentPointCounterLabel);
     }
+}
 
     //helpers sa error
     private void showInputError(String message){
@@ -953,6 +1016,17 @@ public class FXMLDocumentController implements Initializable {
         inputErrorLabel.setText("");
         inputErrorLabel.setVisible(false);
         inputErrorLabel.setManaged(false);
-    }  
+    }
+    
+    private void updatePointCounterDisplay() {
+    if (persistentPointCounterLabel != null) {
+        persistentPointCounterLabel.setText("Point counter: " + this.points + "/100");
+        persistentPointCounterLabel.setVisible(true);
+        persistentPointCounterLabel.toFront(); // Brings it above background overlays
+    }
+    
 }
+    
+}
+
 

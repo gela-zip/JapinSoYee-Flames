@@ -174,5 +174,6 @@
             </HBox>
          </children>
       </VBox>
+      <Label AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" alignment="CENTER" fx:id="persistentPointCounterLabel" prefWidth="400.0" style="-fx-text-fill: #FFFFFF; -fx-font-size: 16px; -fx-font-weight: bold; -fx-background-color: transparent;" text="Point counter: 0/100" visible="false"/>
    </children>
 </AnchorPane>
