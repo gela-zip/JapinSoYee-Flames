@@ -20,6 +20,8 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Font;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.AnchorPane; 
 
 public class FXMLDocumentController implements Initializable {
 
@@ -37,6 +39,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML private ImageView charLeftView, charCenterView, charRightView;
     @FXML private Label speakerLabel, dialogueTextLabel;
     @FXML private Label persistentPointCounterLabel;
+    @FXML private HBox pointCounterContainer; 
 
     private MediaPlayer videoPlayer;
     private MediaPlayer bgmPlayer;
@@ -357,6 +360,9 @@ public void initialize(URL url, ResourceBundle rb) {
 
         playBGM("SPACESHIP_DROP.wav");
         setBackdrop("SPACESHIP BACKGROUND.png");
+        if (pointCounterContainer != null) {
+            AnchorPane.setLeftAnchor(pointCounterContainer, 280.0);
+        }
         updatePointCounterDisplay();
         if (gameLogic.isRandomResult()) {
             this.storyDialogue = new String[][]{
@@ -439,7 +445,11 @@ public void initialize(URL url, ResourceBundle rb) {
     
     private void startPlanetScene() {
         currentScene = 7;
-
+        
+        if (pointCounterContainer != null) {
+            AnchorPane.setLeftAnchor(pointCounterContainer, 240.0);
+        }
+        
         if (endingResultBox != null) {
             endingResultBox.setVisible(false);
         }
@@ -538,8 +548,9 @@ public void initialize(URL url, ResourceBundle rb) {
         hideAllPanels();
         stopAudio();
         
-        if (persistentPointCounterLabel != null) {
-            persistentPointCounterLabel.setVisible(false);
+        if (pointCounterContainer != null) {
+            pointCounterContainer.setVisible(false);
+            pointCounterContainer.setManaged(false);
         }
 
         setBackdrop("space.png");
@@ -575,8 +586,18 @@ public void initialize(URL url, ResourceBundle rb) {
         }
 
         if (expectationResultLabel != null) {
-            expectationResultLabel.setText("Expected: " + (userExpectation != null ? userExpectation : "None") 
-                + (matchedExpectation ? " ✓" : " ✗"));
+            expectationResultLabel.setText("Expected: " + (userExpectation != null ? userExpectation : "None")); 
+            expectationResultLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Press Start 2P'; -fx-font-size: 14px;");
+        }
+        
+        if (planetNameLabel != null) {
+            planetNameLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Press Start 2P'; -fx-font-size: 14px;");
+        }
+        if (flamesResultLabel != null) {
+            flamesResultLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Press Start 2P'; -fx-font-size: 14px;");
+        }
+        if (scoreLabel != null) {
+            scoreLabel.setStyle("-fx-text-fill: white; -fx-font-family: 'Press Start 2P'; -fx-font-size: 14px; -fx-font-weight: bold;");
         }
 
         if (scoreLabel != null) {
@@ -620,7 +641,11 @@ public void initialize(URL url, ResourceBundle rb) {
         if (expectationDropdown != null) expectationDropdown.setValue("Friends");
         if (persistentPointCounterLabel != null) {
             persistentPointCounterLabel.setText("Point Counter: 0/100");
-            persistentPointCounterLabel.setVisible(false);
+            }
+         if (pointCounterContainer != null) {
+            AnchorPane.setLeftAnchor(pointCounterContainer, 240.0);
+            pointCounterContainer.setVisible(false);
+            pointCounterContainer.setManaged(false);
         }
 
         // Open Gender Selection Scene directly
@@ -999,9 +1024,11 @@ public void initialize(URL url, ResourceBundle rb) {
     clearImageView(winLoseBannerView);
 
     // Keep counter visible if points are active
-    if (persistentPointCounterLabel != null && currentScene >= 3) {
-        persistentPointCounterLabel.setVisible(true);
-        bringToTopLevelFront(persistentPointCounterLabel);
+    if (pointCounterContainer != null && currentScene >= 3) {
+        pointCounterContainer.setVisible(true);
+        bringToTopLevelFront(pointCounterContainer);
+    } else if (pointCounterContainer != null) {
+        pointCounterContainer.setVisible(false);
     }
 }
 
@@ -1019,10 +1046,13 @@ public void initialize(URL url, ResourceBundle rb) {
     }
     
     private void updatePointCounterDisplay() {
-    if (persistentPointCounterLabel != null) {
+        if (persistentPointCounterLabel != null) {
         persistentPointCounterLabel.setText("Point counter: " + this.points + "/100");
-        persistentPointCounterLabel.setVisible(true);
-        persistentPointCounterLabel.toFront(); // Brings it above background overlays
+    }
+    if (pointCounterContainer != null) {
+        pointCounterContainer.setVisible(true);
+        pointCounterContainer.setManaged(true);
+        pointCounterContainer.toFront(); // Brings the transparent capsule above background overlays
     }
     
 }
