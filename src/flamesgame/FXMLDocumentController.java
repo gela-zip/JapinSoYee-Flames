@@ -1,12 +1,10 @@
 package flamesgame;
 
 import java.net.URL;
-import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -23,7 +21,7 @@ import javafx.scene.text.Font;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.AnchorPane; 
 
-public class FXMLDocumentController implements Initializable {
+public class FXMLDocumentController {
 
     @FXML private MediaView mediaView;
     @FXML private ImageView backgroundImage;
@@ -75,16 +73,14 @@ public class FXMLDocumentController implements Initializable {
     @FXML private VBox winLoseBannerBox;
     @FXML private ImageView winLoseBannerView;
     
-    @Override
-public void initialize(URL url, ResourceBundle rb) {
+    @FXML
+private void initialize() {
     // Register font family into JavaFX global font registry
     try {
         Font loadedFont = Font.loadFont(
             getClass().getResourceAsStream("/flamesgame/assets/PressStart2P-Regular.ttf"), 12
         );
-        if (loadedFont != null) {
-            System.out.println("Pixel font registered successfully as: " + loadedFont.getFamily());
-        } else {
+        if (loadedFont == null) {
             System.err.println("Font file not found or failed to load. Check resource path.");
         }
     } catch (Exception e) {
@@ -103,7 +99,6 @@ public void initialize(URL url, ResourceBundle rb) {
     if (mediaView != null) {
         mediaView.setFitWidth(800);
         mediaView.setFitHeight(600);
-        mediaView.setPreserveRatio(false);
     }
 
     if (startButton != null) {
@@ -113,7 +108,7 @@ public void initialize(URL url, ResourceBundle rb) {
     playBGM("GAME_START_MUSIC.wav");
 
     playVideo("intro_start.mp4", false, () -> {
-        Platform.runLater(() -> {
+        Platform.runLater(() -> {           //para ni ma-safely run ang code on the main JavaFX thread so that when modifying UI elements won't crash the app.
             if (videoPlayer != null) {
                 videoPlayer.pause();
             }
@@ -184,7 +179,7 @@ public void initialize(URL url, ResourceBundle rb) {
         char2StandingOnlyAsset = p2IsBoy  ? "BoyStanding.png" : "GirlStanding.png";
 
         char1RaisingPath  = p1IsGirl ? "GirlRaisingHerHandNoSpace.png" : "BoyRaisingHandNoSpace.png";
-        char1SadPath      = p1IsGirl ? "GirlSadNoSpace.png" : "BoySadNoSpace.png"; //ok conan gray
+        char1SadPath      = p1IsGirl ? "GirlSadNoSpace.png" : "BoySadNoSpace.png";      //ok conan gray
         char1StandingPath = p1IsGirl ? "GirlStandingNoSpace.png" : "BoyStandingNoSpace.png";
 
         char2RaisingPath  = p2IsBoy  ? "BoyRaisingHandNoSpace.png" : "GirlRaisingHerHandNoSpace.png";
@@ -202,7 +197,7 @@ public void initialize(URL url, ResourceBundle rb) {
         playScene1Video(); //move to next SCENE 1 Introduction
     }
 
-    private void playScene1Video() { //SCENE 1 BACKGROUND MEDIA
+    private void playScene1Video() { //SCENE 1: BACKGROUND MEDIA
         currentScene = 2;
         playBGM("EARTH_TRANSITION.wav");
         playVideo("scene1_video.mp4", true, this::startScene1Dialogue);
@@ -328,7 +323,7 @@ public void initialize(URL url, ResourceBundle rb) {
         int tally = gameLogic.getTally(name1, name2);
         this.flamesMeaning = gameLogic.flamesResult(tally);
 
-        // Stage 1: Only add relationship points here
+        // Only add relationship points here
         gameLogic.calculateRelationshipPoints(flamesMeaning, expectation);
         this.points = gameLogic.getUserPoints();
 
@@ -709,11 +704,27 @@ public void initialize(URL url, ResourceBundle rb) {
                 loadImage(charLeftView, char1AngryPath);
                 loadImage(charCenterView, char2AngryPath);
             }
-
+            
+            //OPACITY
             setSpeakerOpacity(speaker.equals("Player 1") ? 1.0 : 0.5,
                 speaker.equals("Player 2") ? 1.0 : 0.5,
                 isLanceSpeaking ? 1.0 : 0.5);
 
+        } else if (currentScene == 2) {
+            // Earth Scene (Scene 2): Player 1 on left, Player 2 on right
+            if (charCenterView != null) charCenterView.setVisible(false);
+            if (charLeftView != null) charLeftView.setVisible(true);
+            if (charRightView != null) charRightView.setVisible(true);
+
+            if (speaker.equals("Player 1")) {
+                setSpeakerOpacity(1.0, 0.0, 0.5);
+                loadImage(charLeftView, char1RaisingPath);
+                loadImage(charRightView, char2StandingPath);
+            } else {
+                setSpeakerOpacity(0.5, 0.0, 1.0);
+                loadImage(charLeftView, char1StandingPath);
+                loadImage(charRightView, char2RaisingPath);
+            }
         } else if (currentScene == 3) {
             if (charLeftView != null) charLeftView.setVisible(true);
             if (charCenterView != null) charCenterView.setVisible(true);
@@ -741,23 +752,6 @@ public void initialize(URL url, ResourceBundle rb) {
             setSpeakerOpacity(speaker.equals("Player 1") ? 1.0 : 0.5,
                 speaker.equals("Player 2") ? 1.0 : 0.5,
                 isLanceSpeaking ? 1.0 : 0.5);
-
-        } else if (currentScene == 2) {
-            // Earth Scene (Scene 2): Player 1 on left, Player 2 on right
-            if (charCenterView != null) charCenterView.setVisible(false);
-            if (charLeftView != null) charLeftView.setVisible(true);
-            if (charRightView != null) charRightView.setVisible(true);
-
-            if (speaker.equals("Player 1")) {
-                setSpeakerOpacity(1.0, 0.0, 0.5);
-                loadImage(charLeftView, char1RaisingPath);
-                loadImage(charRightView, char2StandingPath);
-            } else {
-                setSpeakerOpacity(0.5, 0.0, 1.0);
-                loadImage(charLeftView, char1StandingPath);
-                loadImage(charRightView, char2RaisingPath);
-            }
-
         } else {
             // Planet Outcome Scene (Scene 7)
             if (charCenterView != null) charCenterView.setVisible(false);

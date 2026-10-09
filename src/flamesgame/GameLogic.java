@@ -84,7 +84,7 @@ public class GameLogic {
         }
     }
 
-    public Planet choosePlanet() { //gaiz instead nga modifier, rng nalang ang planet HAHAH
+    public Planet choosePlanet() {
         Random random = new Random();
         int index = random.nextInt(planets.length);
         return planets[index];

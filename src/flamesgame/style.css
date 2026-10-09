@@ -87,7 +87,7 @@
     -fx-border-width: 1.5;
 }
 
-.gradient-button {
+.color-button {
     -fx-font-family: 'Press Start 2P', 'PixelFont';
     -fx-background-color: #FF4500; /* Solid color */
     -fx-text-fill: white;
