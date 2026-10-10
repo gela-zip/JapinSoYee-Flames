@@ -23,26 +23,7 @@
       <MediaView fx:id="mediaView" fitHeight="600.0" fitWidth="800.0" preserveRatio="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
       <ImageView fx:id="backgroundImage" fitHeight="600.0" fitWidth="800.0" pickOnBounds="true" preserveRatio="false" visible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
 
-      <!-- SEPARATE WIN/LOSE BANNER VBOX (Upper Half of Screen) -->
-<VBox fx:id="winLoseBannerBox" 
-      alignment="CENTER" 
-      maxHeight="320.0" 
-      maxWidth="800.0" 
-      prefHeight="320.0" 
-      prefWidth="800.0" 
-      visible="false" 
-      AnchorPane.leftAnchor="0.0" 
-      AnchorPane.rightAnchor="0.0" 
-      AnchorPane.topAnchor="0.0">
-   <children>
-      <ImageView fx:id="winLoseBannerView" 
-                 fitHeight="300.0" 
-                 fitWidth="760.0" 
-                 pickOnBounds="true" 
-                 preserveRatio="true" />
-   </children>
-</VBox>
-
+      
       <!-- Video Controls -->
       <HBox spacing="10.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
          <children>
@@ -97,7 +78,7 @@
                               <ImageView fx:id="gbPreview2" fitHeight="85.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" />
                            </children>
                         </HBox>
-                        <Button mnemonicParsing="false" onAction="#handleGirlBoyChoice" prefHeight="38.0" prefWidth="140.0" styleClass="gradient-button" text="Girl &amp; Boy" />
+                        <Button mnemonicParsing="false" onAction="#handleGirlBoyChoice" prefHeight="38.0" prefWidth="140.0" styleClass="color-button" text="Girl &amp; Boy" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER" spacing="15.0" styleClass="pairing-card">
@@ -108,7 +89,7 @@
                               <ImageView fx:id="bbPreview2" fitHeight="85.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" />
                            </children>
                         </HBox>
-                        <Button mnemonicParsing="false" onAction="#handleBoyBoyChoice" prefHeight="38.0" prefWidth="140.0" styleClass="gradient-button" text="Boy &amp; Boy" />
+                        <Button mnemonicParsing="false" onAction="#handleBoyBoyChoice" prefHeight="38.0" prefWidth="140.0" styleClass="color-button" text="Boy &amp; Boy" />
                      </children>
                   </VBox>
                   <VBox alignment="CENTER" spacing="15.0" styleClass="pairing-card">
@@ -119,7 +100,7 @@
                               <ImageView fx:id="ggPreview2" fitHeight="85.0" fitWidth="70.0" pickOnBounds="true" preserveRatio="true" />
                            </children>
                         </HBox>
-                        <Button mnemonicParsing="false" onAction="#handleGirlGirlChoice" prefHeight="38.0" prefWidth="140.0" styleClass="gradient-button" text="Girl &amp; Girl" />
+                        <Button mnemonicParsing="false" onAction="#handleGirlGirlChoice" prefHeight="38.0" prefWidth="140.0" styleClass="color-button" text="Girl &amp; Girl" />
                      </children>
                   </VBox>
                </children>
@@ -206,5 +187,26 @@
                    text="Point counter: 0/100" />
          </children>
       </HBox>
+      
+       <!-- SEPARATE WIN/LOSE BANNER VBOX (Upper Half of Screen) -->
+    <VBox fx:id="winLoseBannerBox" 
+          alignment="CENTER" 
+          maxHeight="320.0" 
+          maxWidth="800.0" 
+          prefHeight="320.0" 
+          prefWidth="800.0" 
+          visible="false" 
+          AnchorPane.leftAnchor="0.0" 
+          AnchorPane.rightAnchor="0.0" 
+          AnchorPane.topAnchor="0.0">
+       <children>
+          <ImageView fx:id="winLoseBannerView" 
+                     fitHeight="300.0" 
+                     fitWidth="760.0" 
+                     pickOnBounds="true" 
+                     preserveRatio="true" />
+       </children>
+    </VBox>
+
    </children>
 </AnchorPane>
